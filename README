@@ -1,0 +1,160 @@
+Ozan Irsoy, 2013
+
+Implementation of Soft Decision Trees
+(for scalar valued regression and binary classification only)
+
+See,
+  "Soft Decision Trees", 
+  Ozan Irsoy, Olcay Taner Yildiz, Ethem Alpaydin, 
+  21st International Converence on Pattern Recognition (ICPR), 2012
+for details.
+
+If you use this code, please cite:
+
+@inproceedings{irsoy2012soft,
+  title={Soft decision trees},
+  author={Irsoy, Ozan and Yildiz, Olcay Taner and Alpaydin, Ethem},
+  booktitle={Pattern Recognition (ICPR), 2012 21st International Conference on},
+  pages={1819--1822},
+  year={2012},
+  organization={IEEE}
+}
+
+The code is free for academic, non-commercial purposes.
+Feel free to ask questions: oirsoy [a] cs [o] cornell [o] edu
+https://www.cs.cornell.edu/~oirsoy/
+
+--------------------------------------------------------------------------------
+
+1. GETTING STARTED VERY QUICKLY
+
+  Compile 'toy.cpp' (I suggest, with optimization flags). For this part,
+  a decent C++ compiler should be enough:
+  
+    g++ toy.cpp -O3
+    
+  Then run the executable:
+  
+    ./a.out
+  
+  That's it!  
+  This should learn a Soft Regression Tree on a randomly generated toy dataset
+  with a sinusoid shape. It should also output a file named 'out', in the same
+  directory as the executable, which should have the three columns
+  x, y (true response), y^ (predicted response), which you may plot with your
+  favorite plotting tool.
+  
+2. FILES
+
+  Core files (the important ones):
+  
+    common.cpp        : Common functions & std::vector operator overloads
+    |-SoftTree.cpp    : Implementation of Soft Trees
+    | |   
+  Other files (not so important ones):
+    | |
+    | |-toy.cpp       : main function to do regression on toy data
+    | |-regress.cpp   : main function to do regression on real data
+    |-|-classify.cpp  : main function to do classification on real data
+    
+3. GETTING STARTED RATHER SLOWLY
+
+  If you'd like to learn trees on real datasets, 'regress.cpp' or 'classify.cpp'
+  might be helpful. Both files are designed to do a 5x2-CV on a (slightly
+  modified) AYSU formatted dataset. 'regress.cpp' is for regression and
+  'classify.cpp' is for classification.
+  
+  Here is how to run 'regress.cpp' ('classify.cpp' is similar). Compile:
+  
+    g++ regress.cpp -O3
+    
+  Then run as follows:
+  
+    ./a.out <dataset_name> <fold_number>
+    
+  It will expect a folder <executable_directory>/data/<dataset_name> having the
+  aforementioned format. <fold_number> is in {0..9}, and denotes one of the
+  5x2 folds. 
+  As an example, this small bash script should run the method on 'concrete' 
+  dataset over all folds:
+  
+    for i in {0..9}
+    do
+      ./a.out concrete $i
+    done
+    
+4. DETAILS OF USING THE 'SoftTree' CLASS
+
+  You only need 'common.cpp' and 'SoftTree.cpp' for general use.
+
+  Firstly, include "SoftTree.cpp" in your main file. There are two class
+  implementations in that file 'SoftTree' and 'Node'. 'Node' simply implements
+  a tree node, so you should probably not bother with it. However, it also 
+  implements update routines and recursive functions, so if you want to play
+  with the code it is important.
+  
+  Parameters:
+  
+    There is a set of predefined parameters in the beginning of the file 
+    'SoftTree.cpp' (using the #define keyword),
+    such as the number of epochs in training of a parent node and their
+    children, or pre-pruning threshold. You should check these and modify
+    them according to your data/domain. Current values give reasonable results
+    on the datasets in the paper.
+  
+  Prepare your data:
+  
+    You need two datasets for training, a training set {X, Y}
+    and a validation set {V, R}. Validation set is used as a pre-pruning set.
+    
+    X and V should be (vector<vector< double > >), and
+    Y and R should be (vector< double >) also the following should hold:
+    X.size() == Y.size() and V.size() == R.size().
+    This means X[i] is a feature vector with label Y[i] (similarly for V and R).
+    
+    Note that even if you are doing classification Y[i] and R[i] are still
+    (double), not (int). This is for convenience. For binary classification,
+    class labels should be 0.0 or 1.0.
+    
+    Normalization is important, so make sure that the data has 0 mean and
+    unit variance for every feature. Normalization of response values might
+    also be important when doing regression, if they are large or far away from 
+    0.
+    
+  Learn the tree:
+  
+    You may train the tree by simply calling the constructor (there is no
+    separate train function):
+    
+      SoftTree st(X, Y, V, R);
+      
+    You may specify if it is a regression or a classification tree as:
+    
+      SoftTree st(X, Y, V, R, 'r'); // regression tree
+      SoftTree st(X, Y, V ,R, 'c'); // classification tree
+  
+    If you do not specify a fifth argument, it is 'r'egression by default.
+    
+  Test the tree:
+  
+    'evaluate()' function computes a response value for a feature vector.
+    If x is (vector<double>) with the appropriate size,
+    
+      double y = st.evaluate(x);
+      
+    should return the response value 'y' for 'x'. You may compute the Mean
+    Squared Error (for regression) or Error Rate (for classification) over
+    a dataset {U, T}, instead of a single test instance. 
+    If U is (vector<vector< double > >) and T is (vector<double>)
+    with appropriate sizes,
+    
+      double mse = st.meanSqErr(U, T);
+      double err = st.errRate(U, T)
+    
+    should return the respective error measures. MSE is in [0, infinity) and
+    Error Rate is in [0, 1] (i.e. you should multiply by 100 to get a percentage
+    error).
+    
+5. TODO
+
+  Add save-load functionality to store a trained tree.

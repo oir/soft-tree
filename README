@@ -6,7 +6,7 @@ Implementation of Soft Decision Trees
 See,
   "Soft Decision Trees", 
   Ozan Irsoy, Olcay Taner Yildiz, Ethem Alpaydin, 
-  21st International Converence on Pattern Recognition (ICPR), 2012
+  21st International Conference on Pattern Recognition (ICPR), 2012
 for details.
 
 If you use this code, please cite:
@@ -46,7 +46,7 @@ https://www.cs.cornell.edu/~oirsoy/
   
 2. FILES
 
-  Core files (the important ones):
+  Core files (important ones):
   
     common.cpp        : Common functions & std::vector operator overloads
     |-SoftTree.cpp    : Implementation of Soft Trees
@@ -60,9 +60,12 @@ https://www.cs.cornell.edu/~oirsoy/
 3. GETTING STARTED RATHER SLOWLY
 
   If you'd like to learn trees on real datasets, 'regress.cpp' or 'classify.cpp'
-  might be helpful. Both files are designed to do a 5x2-CV on a (slightly
-  modified) AYSU formatted dataset. 'regress.cpp' is for regression and
-  'classify.cpp' is for classification.
+  might be helpful. Both files are designed to do a 5x2-CV on UCI datasets with
+  a particular format (check UCI dataset used in the paper here:
+  https://www.cs.cornell.edu/~oirsoy/files/softtree/data.tar.gz
+  for the exact folder structure and file format).
+   
+  'regress.cpp' is for regression and 'classify.cpp' is for classification.
   
   Here is how to run 'regress.cpp' ('classify.cpp' is similar). Compile:
   
@@ -82,6 +85,32 @@ https://www.cs.cornell.edu/~oirsoy/
     do
       ./a.out concrete $i
     done
+    
+  Finally, if you want to replicate the paper (sort of*), you may download the
+  data and scripts:
+  
+    https://www.cs.cornell.edu/~oirsoy/files/softtree/data.tar.gz
+    https://www.cs.cornell.edu/~oirsoy/files/softtree/scripts.tar.gz
+    
+  and extract them into the main folder. Then simply run the following for 
+  regression:
+  
+    g++ regress.cpp -O3
+    nohup bash regress.sh &
+    
+  Or the following for classification:
+  
+    g++ classify.cpp -O3
+    nohup bash classify.sh &
+    
+  These will run the algorithm over each dataset in series, over all 10 folds 
+  in parallel, as background processes.
+  
+  *: There are 2 reasons that these will not yield the exact results in the
+     paper. (1) After I refactored my code for release, there were
+     numerical differences in the results. (2) For classification results in
+     the paper, we used a different implementation by Olcay Taner Yildiz
+     (http://haydut.isikun.edu.tr/), hence, there might be differences.
     
 4. DETAILS OF USING THE 'SoftTree' CLASS
 
